@@ -12,7 +12,7 @@ project(lib_prot_msg
 set(_PATH_TO_MODULES "${PROJECT_SOURCE_DIR}/modules" CACHE STRING "Путь к используемым внешним модулям")
 
 # Настроить возможность подключения модулей cmake
-include(${_PATH_TO_MODULES}/tlk_build/cmake/Init.cmake)
+include(${_PATH_TO_MODULES}/origin_tlk_build/cmake/Init.cmake)
 
 # Подключить исходники
 add_subdirectory(src)
