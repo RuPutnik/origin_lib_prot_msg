@@ -227,20 +227,20 @@ public:
      * @return Источник данных
      * @sa Protocol::BUFFER_SOURCE
      */
-    BUFFER_SOURCE getBufferSource() const;
+    BUFFER_SOURCE getBufferSource() const noexcept;
 
     /**
      * @brief Получить указатель на внутренний буфер данных
      * @return Указатель на внутренний буфер данных
      */
-    const unsigned char* getInternalBuffer() const;
+    const unsigned char* getInternalBuffer() const noexcept;
     /**
      * @brief Получить длину внутреннего буфера
      * @return Длина внутреннего буфера в байтах
      * @note Можно использовать всегда для определения количества байтов, занимаемых полями протокола внезависимости от того, какой из буферов используется: внутренний или внешний.
      * Это связано с тем, что длина внутреннего буфера всегда соотвествтует текущему набору полей
      */
-    unsigned int getLength() const;
+    unsigned int getLength() const noexcept;
 
     /**
      * @brief Получить указатель на внешний буфер данных
@@ -249,7 +249,7 @@ public:
      * @sa BUFFER_SOURCE::INTERNAL_BUFFER
      * @sa BUFFER_SOURCE::EXTERNAL_BUFFER
      */
-    unsigned char* getExternalBuffer() const;
+    unsigned char* getExternalBuffer() const noexcept;
     /**
      * @brief Установить указатель на внешний буфер данных
      * @param[out] externalBuffer указатель на внешний буфер данных
@@ -603,7 +603,7 @@ public:
      * @sa Protocol::P_BYTE_ORDER
      * @sa Protocol::getVisualization()
      */
-    std::string getDataVisualization(int firstLineNumber = 1, unsigned int bytesPerLine = 2, BASE base = BASE::HEX, bool spacesBetweenBytes = true);
+    std::string getDataVisualization(int firstLineNumber = 1, unsigned int bytesPerLine = 2, BASE base = BASE::HEX, bool spacesBetweenBytes = true) const;
 
     /**
      * @brief Получить указатель на байт, в котором начинается указанное поле. Важно понимать, что указанное поле не обязательно должно иметь свой первый бит в самом начале байта

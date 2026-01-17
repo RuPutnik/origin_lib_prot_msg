@@ -147,19 +147,23 @@ void Protocol::setBufferSource(const Protocol::BUFFER_SOURCE bufferSource)
 }
 
 //Получить режим работы
-Protocol::BUFFER_SOURCE Protocol::getBufferSource() const
-{return m_bufferSource;}
+Protocol::BUFFER_SOURCE Protocol::getBufferSource() const noexcept{
+    return m_bufferSource;
+}
 
 //Плучить указатель на внутренний буфер
-const unsigned char* Protocol::getInternalBuffer() const
-{return m_internalBuffer;}
+const unsigned char* Protocol::getInternalBuffer() const noexcept{
+    return m_internalBuffer;
+}
 
-unsigned int Protocol::getLength() const
-{return m_internalBufferLength;}
+unsigned int Protocol::getLength() const noexcept{
+    return m_internalBufferLength;
+}
 
 //Получить указатель на внешний буфер
-unsigned char* Protocol::getExternalBuffer() const
-{return m_externalBuffer;}
+unsigned char* Protocol::getExternalBuffer() const noexcept{
+    return m_externalBuffer;
+}
 
 //Установить внешний буфер
 void Protocol::setExternalBuffer(unsigned char * const externalBuffer)
@@ -344,7 +348,7 @@ std::string Protocol::getVisualization(bool drawHeader, int firstLineNum, unsign
     return utf16ToUtf8(result);
 }
 
-std::string Protocol::getDataVisualization(int firstLineNumber, unsigned int bytesPerLine, BASE base, bool spacesBetweenBytes)
+std::string Protocol::getDataVisualization(int firstLineNumber, unsigned int bytesPerLine, BASE base, bool spacesBetweenBytes) const
 {
     if(m_indToFieldMap.empty()) return "Protocol::getDataVisualization(). Протокол пуст";
 
@@ -376,15 +380,25 @@ std::string Protocol::getDataVisualization(int firstLineNumber, unsigned int byt
         }
 
         //Получим текстовое представление текущего байта
-        char byteTextValue[32]; byteTextValue[0] = 0;
-        if(base == BASE::HEX)
+        char byteTextValue[32];
+        byteTextValue[0] = 0;
+
+        switch (base) {
+        case BASE::HEX:
             sprintf(byteTextValue, "%x", workingBuffer[i]);
-        if(base == BASE::DEC)
+            break;
+        case BASE::DEC:
             sprintf(byteTextValue, "%d", workingBuffer[i]);
-        if(base == BASE::OCT)
+            break;
+        case BASE::OCT:
             sprintf(byteTextValue, "%o", workingBuffer[i]);
-        if(base == BASE::BIN)
+            break;
+        case BASE::BIN://BUG
             sprintf(byteTextValue, "%s%s", getHalfByteBinary()[workingBuffer[i] >> 4], getHalfByteBinary()[workingBuffer[i] & 0x0F]);
+            break;
+        default:
+            break;
+        }
 
         currentLineText += (spacesBetweenBytes?(itIsFirstByteInLine ? "" : " "):"") + std::string(byteTextValue);
 
