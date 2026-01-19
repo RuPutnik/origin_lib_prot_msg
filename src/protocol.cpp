@@ -80,6 +80,14 @@ Protocol& Protocol::operator=(const Protocol& wrapper)
     return *this;
 }
 
+Protocol Protocol::operator+(const Protocol &prot) const
+{
+    Protocol totalProt = *this;
+    totalProt.appendProtocol(prot);
+
+    return totalProt;
+}
+
 //Конструктор перемещения
 Protocol::Protocol(Protocol &&wrapper)
 {
@@ -394,7 +402,7 @@ std::string Protocol::getDataVisualization(int firstLineNumber, unsigned int byt
             sprintf(byteTextValue, "%o", workingBuffer[i]);
             break;
         case BASE::BIN://BUG
-            sprintf(byteTextValue, "%s%s", getHalfByteBinary()[workingBuffer[i] >> 4], getHalfByteBinary()[workingBuffer[i] & 0x0F]);
+         //   sprintf(byteTextValue, "%s%s", getHalfByteBinary()[workingBuffer[i] >> 4], getHalfByteBinary()[workingBuffer[i] & 0x0F]);
             break;
         default:
             break;

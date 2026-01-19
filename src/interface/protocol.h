@@ -199,6 +199,8 @@ public:
     Protocol(Protocol&& wrapper);
     Protocol& operator=(Protocol&& wrapper);
 
+    Protocol operator+(const Protocol& prot) const;
+
     virtual ~Protocol();
 
     /**
