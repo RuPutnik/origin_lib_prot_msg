@@ -182,7 +182,7 @@ void Protocol::setExternalBuffer(unsigned char * const externalBuffer)
     }
 }
 
-void Protocol::setInternalBufferValues(unsigned char * const bufferToCopy)
+void Protocol::setInternalBufferValues(const unsigned char * const bufferToCopy)
 {
     memcpy(m_internalBuffer, bufferToCopy, m_internalBufferLength);
 }
@@ -194,12 +194,13 @@ Protocol::NameToIndMap Protocol::getFields() const
 {return m_nameToIndMap;}
 
 //Получить граф. представление текущего буфера в протоколе
-std::string Protocol::getVisualization(bool drawHeader, int firstLineNum, unsigned int horizontalBitMargin, unsigned int nameLinesCount, bool printValues) const
+std::string Protocol::getBinaryVisualization(bool drawHeader, int firstLineNum, unsigned int horizontalBitMargin, unsigned int nameLinesCount, int wordBitSize, bool printValues) const
 {
     if(horizontalBitMargin <= 0) horizontalBitMargin = 1;
     if(nameLinesCount <= 0) nameLinesCount = 1;
+    if(wordBitSize < 8) return "Protocol::getBinaryVisualization(). WordBitSize < 8";
 
-    if(m_indToFieldMap.empty()) return "Protocol::getVisualization(). Протокол пуст";
+    if(m_indToFieldMap.empty()) return "Protocol::getBinaryVisualization(). Протокол пуст";
 
     //1. Сформируем массив битов
     std::vector<bool> bits(m_internalBufferLength*8, 0);
@@ -219,16 +220,22 @@ std::string Protocol::getVisualization(bool drawHeader, int firstLineNum, unsign
     //2.1 Сформируем шапку
     std::wstring lessSignificantHeader; //Шапка младших битов
     std::wstring mostSignificantHeader; //Шапка старших битов
-    for(int i = 15; i >= 0; i--) {
-        if(i < 8)
+
+    for(int i = 0; i < 6 * wordBitSize + 5 + horizontalBitMargin; i++) {
+        result += '_';
+    }
+    result += '\n';
+
+    for(int i = 0; i <= wordBitSize - 1; i++) {
+        if(i >= wordBitSize / 2)
             lessSignificantHeader += std::wstring(L"|") + std::wstring(horizontalBitMargin-1, ' ') + (i<10?L"0":L"") + std::to_wstring(i) + std::wstring(horizontalBitMargin, ' ');
         else
             mostSignificantHeader += std::wstring(L"|") + std::wstring(horizontalBitMargin-1, ' ') + (i<10?L"0":L"") + std::to_wstring(i) + std::wstring(horizontalBitMargin, ' ');
     }
-    unsigned char bitTextLen = lessSignificantHeader.length()/8;
+    unsigned char bitTextLen = lessSignificantHeader.length()/(wordBitSize / 2);
 
     if(drawHeader) {
-        if(firstLineNum >= 0) result = L"|_____";
+        if(firstLineNum >= 0) result += L"|_____";
         if(m_protocolByteOrder == P_BYTE_ORDER::P_BIG_ENDIAN)
             result += mostSignificantHeader + lessSignificantHeader + L"|\n";
         else
@@ -314,27 +321,27 @@ std::string Protocol::getVisualization(bool drawHeader, int firstLineNum, unsign
         std::wstring lineNumEmptyPart  = L"|     |";
         std::wstring lineNumBottomPart = L"|_____|";
 
-        if(nameLines.at(0).length() >= bitTextLen*16) {
+        if(nameLines.at(0).length() >= bitTextLen*wordBitSize) {
             //Строчки с именем
             for(uint32_t i = 0; i < nameLinesCount; ++i) {
-                std::wstring lineWithoutLineNum = nameLines.at(i).substr(0, bitTextLen*16) + L"\n";
+                std::wstring lineWithoutLineNum = nameLines.at(i).substr(0, bitTextLen*wordBitSize) + L"\n";
                 if(i == 0) //Первая строчка
                     result += (firstLineNum>=0?lineNumNumberPart:L"|") + lineWithoutLineNum;
                 else
                     result += (firstLineNum>=0?lineNumEmptyPart:L"|")  + lineWithoutLineNum;
 
                 //Обрезаем строчку
-                nameLines[i] = nameLines[i].substr(bitTextLen*16);
+                nameLines[i] = nameLines[i].substr(bitTextLen*wordBitSize);
             }
             //Строчка со значением
             if(printValues) {
-                result += (firstLineNum>=0?lineNumEmptyPart:L"|") + valuesLine.substr(0, bitTextLen*16) + L"\n";
-                valuesLine = valuesLine.substr(bitTextLen*16);
+                result += (firstLineNum>=0?lineNumEmptyPart:L"|") + valuesLine.substr(0, bitTextLen*wordBitSize) + L"\n";
+                valuesLine = valuesLine.substr(bitTextLen*wordBitSize);
             }
             //Последняя строчка
-            result += (firstLineNum>=0?lineNumBottomPart:L"|") + bottomLine.substr(0, bitTextLen*16) + L"\n";
+            result += (firstLineNum>=0?lineNumBottomPart:L"|") + bottomLine.substr(0, bitTextLen*wordBitSize) + L"\n";
             //Обрезам строчку
-            bottomLine = bottomLine.substr(bitTextLen*16);
+            bottomLine = bottomLine.substr(bitTextLen*wordBitSize);
         } else {
             //Строчки с именем
             for(uint32_t i = 0; i < nameLinesCount; ++i) {
@@ -345,10 +352,10 @@ std::string Protocol::getVisualization(bool drawHeader, int firstLineNum, unsign
             }
             //Строчка со значением
             if(printValues) {
-                result += (firstLineNum>=0?lineNumEmptyPart:L"|") + valuesLine.substr(0, bitTextLen*16) + L"\n";
+                result += (firstLineNum>=0?lineNumEmptyPart:L"|") + valuesLine.substr(0, bitTextLen*wordBitSize) + L"\n";
             }
             //Последняя строчка
-            result += (firstLineNum>=0?lineNumBottomPart:L"|") + bottomLine.substr(0, bitTextLen*16) + L"\n";
+            result += (firstLineNum>=0?lineNumBottomPart:L"|") + bottomLine.substr(0, bitTextLen*wordBitSize) + L"\n";
             break;
         }
     }

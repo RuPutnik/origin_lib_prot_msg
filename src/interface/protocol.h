@@ -268,7 +268,7 @@ public:
      * @sa BUFFER_SOURCE::INTERNAL_BUFFER
      * @sa BUFFER_SOURCE::EXTERNAL_BUFFER
      */
-    void setInternalBufferValues(unsigned char * const bufferToCopy);
+    void setInternalBufferValues(const unsigned char * const bufferToCopy);
 
     /**
      * @brief Получить указатель на рабочий буфер данных
@@ -520,10 +520,10 @@ public:
      * @sa Protocol::setByteOrder()
      * @sa Protocol::setBufferSource()
      * @sa Protocol::setFieldValue()
-     * @sa Protocol::getVisualization()
+     * @sa Protocol::getBinaryVisualization()
      * @sa Protocol::getDataVisualization()
      */
-    std::string getVisualization(bool drawHeader = true, int firstLineNum = 1, unsigned int horizontalBitMargin = 3, unsigned int nameLinesCount = 2, bool printValues = false) const;
+    std::string getBinaryVisualization(bool drawHeader = true, int firstLineNum = 1, unsigned int horizontalBitMargin = 3, unsigned int nameLinesCount = 2, int wordBitSize = 16, bool printValues = false) const;
 
     /**
      * @brief Получить текстовое представление данных. Байты выводятся по порядку расположения в памяти слева направо сверху вниз
